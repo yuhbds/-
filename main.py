@@ -1,28 +1,27 @@
-from flask import Flask, jsonify, request
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 import uuid
 
-app = Flask(__name__)
-
+app = FastAPI()
 rooms = {}
 
-@app.route("/", methods=["GET"])
+class JoinRoomRequest(BaseModel):
+    room_id: str
+
+@app.get("/")
 def index():
-    return jsonify({"message": "Room API is running"})
+    return {"message": "Room API is running"}
 
-@app.route("/create-room", methods=["POST"])
+@app.post("/create-room")
 def create_room():
-    room_id = str(uuid.uuid4())[:8]  # 自动生成一个 8 位房间号
+    room_id = str(uuid.uuid4())[:8]
     rooms[room_id] = {"members": []}
-    return jsonify({"room_id": room_id})
+    return {"room_id": room_id}
 
-@app.route("/join-room", methods=["POST"])
-def join_room():
-    data = request.get_json()
-    room_id = data.get("room_id")
+@app.post("/join-room")
+def join_room(request: JoinRoomRequest):
+    room_id = request.room_id
     if room_id in rooms:
-        return jsonify({"message": f"Joined room {room_id}"})
+        return {"message": f"Joined room {room_id}"}
     else:
-        return jsonify({"error": "Room not found"}), 404
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+        raise HTTPException(status_code=404, detail="Room not found")
