@@ -22,7 +22,7 @@ def join_room(data: JoinRequest):
         raise HTTPException(status_code=404, detail="Room not found")
     if len(rooms[room_id]) >= 5:
         raise HTTPException(status_code=403, detail="Room is full")
-    rooms[room_id].append("user")  # 实际项目中你可以用 IP 或 session 标识用户
+    rooms[room_id].append("user")
     return {"message": f"Joined room {room_id}", "members": len(rooms[room_id])}
 
 @app.get("/")
