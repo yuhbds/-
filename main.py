@@ -1,8 +1,19 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uuid
 
 app = FastAPI()
+
+# 添加 CORS 支持
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 或者限制为你的前端域名
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 rooms = {}
 
 class JoinRoomRequest(BaseModel):
