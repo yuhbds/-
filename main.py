@@ -1,38 +1,15 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 import uuid
+from flask import Flask, jsonify
 
-app = FastAPI()
-
-# 添加 CORS 支持
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # 或者限制为你的前端域名
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app = Flask(__name__)
 
 rooms = {}
 
-class JoinRoomRequest(BaseModel):
-    room_id: str
-
-@app.get("/")
-def index():
-    return {"message": "Room API is running"}
-
-@app.post("/create-room")
+@app.route("/create-room", methods=["POST"])
 def create_room():
     room_id = str(uuid.uuid4())[:8]
-    rooms[room_id] = {"members": []}
-    return {"room_id": room_id}
+    rooms[room_id] = []  # 创建房间并将其存入 rooms 字典
+    return jsonify({"room_id": room_id})
 
-@app.post("/join-room")
-def join_room(request: JoinRoomRequest):
-    room_id = request.room_id
-    if room_id in rooms:
-        return {"message": f"Joined room {room_id}"}
-    else:
-        raise HTTPException(status_code=404, detail="Room not found")
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
